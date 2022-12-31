@@ -2,15 +2,12 @@ package com.driver;
 
 public class SavingsAccount extends BankAccount{
     double rate;
+    private static final double MINIMUM_BALANCE = 0;
     double maxWithdrawalLimit;
 
     public SavingsAccount(String name, double balance, double maxWithdrawalLimit, double rate) {
         // minimum balance is 0 by default
-        super();
-
-        setMinBalance(0);
-        setName(name);
-        setBalance(balance);
+        super(name, balance,MINIMUM_BALANCE);
         this.rate=rate;
         this.maxWithdrawalLimit=maxWithdrawalLimit;
 
@@ -19,46 +16,28 @@ public class SavingsAccount extends BankAccount{
         // Might throw the following errors:
         // 1. "Maximum Withdraw Limit Exceed" : If the amount exceeds maximum withdrawal limit
         // 2. "Insufficient Balance" : If the amount exceeds balance
-        if(amount>getBalance()){
-            throw new InsufficientBalanceException();
+        if(amount>maxWithdrawalLimit){
+            throw new Exception("Maximum Withdraw Limit Exceed");
         }
-        else if(amount>this.maxWithdrawalLimit){
-            throw new MaximumWithdrawLimitExceedException();
+        else if(getBalance()-amount <=MINIMUM_BALANCE){
+            throw new Exception("Insufficient Balance");
         }
-        else {
-            double leftOverBalance = getBalance()-amount;
-            setBalance(leftOverBalance);
-        }
+        setBalance(getBalance()-amount);
 
 
     }
 
     public double getSimpleInterest(int years){
         // Return the final amount considering that bank gives simple interest on current amount
-        return (getBalance()*this.rate*years)/100;
+        double si=getBalance()*rate*years/100;
+        return getBalance()+si;
     }
 
     public double getCompoundInterest(int times, int years){
         // Return the final amount considering that bank gives compound interest on current amount given times per year
-        double nt =times*years;
-        double con = (1+(rate/times));
-        double result=getBalance()*Math.pow(con,nt);
-        return result;
-    }
-    public double getRate() {
-        return rate;
+        double compoundInterest = getBalance() * Math.pow((1 + rate/ times), (times * years)) - getBalance();
+        return getBalance() + compoundInterest;
     }
 
-    public void setRate(double rate) {
-        this.rate = rate;
-    }
-
-    public double getMaxWithdrawalLimit() {
-        return maxWithdrawalLimit;
-    }
-
-    public void setMaxWithdrawalLimit(double maxWithdrawalLimit) {
-        this.maxWithdrawalLimit = maxWithdrawalLimit;
-    }
 
 }
